@@ -1,0 +1,26 @@
+Extension { #name : #String }
+
+{ #category : #'*CoffeeCup-Core' }
+String >> asRestApiSelector [
+
+	^self asSymbol asRestApiSelector
+]
+
+{ #category : #'*CoffeeCup-Core' }
+String >> restApiFormatParameters [
+
+	^ OrderedCollection streamContents: [ :result | 
+		  | stream |
+		  stream := self readStream.
+		  [ stream atEnd ] whileFalse: [ 
+			  | currentChar |
+			  (currentChar := stream next) == ${
+				  ifTrue: [ 
+					  | expression |
+					  expression := stream upTo: $}.
+					  result nextPut: expression ]
+				  ifFalse: [ 
+					  currentChar == $\
+						  ifTrue: [ stream atEnd ifFalse: [ stream next ] ]
+						   ] ] ]
+]
