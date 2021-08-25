@@ -1,5 +1,5 @@
 Class {
-	#name : #RestApiEndpoint,
+	#name : #CoffeeCupEndpoint,
 	#superclass : #Object,
 	#instVars : [
 		'api',
@@ -11,7 +11,7 @@ Class {
 }
 
 { #category : #'instance creation' }
-RestApiEndpoint class >> api: anApi name: aSymbol [
+CoffeeCupEndpoint class >> api: anApi name: aSymbol [
 
 	^ self new
 		  setApi: anApi name: aSymbol;
@@ -19,36 +19,36 @@ RestApiEndpoint class >> api: anApi name: aSymbol [
 ]
 
 { #category : #'as yet unclassified' }
-RestApiEndpoint >> _parameter: parameter required: aBoolean default: defaultValue [
+CoffeeCupEndpoint >> _parameter: parameter required: aBoolean default: defaultValue [
 
-	parameters add: (RestApiQueryParameter
-			 key: parameter asRestApiSelector
+	parameters add: (CoffeeCupQueryParameter
+			 key: parameter asCoffeeCupSelector
 			 name: parameter
 			 required: aBoolean
 			 default: defaultValue)
 ]
 
 { #category : #accessing }
-RestApiEndpoint >> allParameters [
+CoffeeCupEndpoint >> allParameters [
 
 	^ api parameters, parameters 
 ]
 
 { #category : #accessing }
-RestApiEndpoint >> allPathParameters [
+CoffeeCupEndpoint >> allPathParameters [
 
 	^ self allParameters select: #isPathParameter  
 	
 ]
 
 { #category : #accessing }
-RestApiEndpoint >> allQueryParameters [
+CoffeeCupEndpoint >> allQueryParameters [
 
 	^ self allParameters select: #isQueryParameter
 ]
 
 { #category : #'as yet unclassified' }
-RestApiEndpoint >> call: method with: arguments [
+CoffeeCupEndpoint >> call: method with: arguments [
 
 	| mappedPath url request |
 	mappedPath := self mappedPath: arguments.
@@ -58,41 +58,41 @@ RestApiEndpoint >> call: method with: arguments [
 		url queryAt: key put: value ].
 
 	request := ZnRequest
-		           method: method asRestApiSelector asUppercase
+		           method: method asCoffeeCupSelector asUppercase
 		           url: url.
 
 	^ api request: request
 ]
 
 { #category : #'reflective operations' }
-RestApiEndpoint >> doesNotUnderstand: aMessage [
+CoffeeCupEndpoint >> doesNotUnderstand: aMessage [
 
 	| selector |
 	selector := aMessage selector.
 
 	^ selector isRestApiCall
 		  ifTrue: [ 
-			  self call: selector restApiMethod with: (OrderedDictionary
-					   newFromKeys: selector restApiArgs
+			  self call: selector coffeeCupMethod with: (OrderedDictionary
+					   newFromKeys: selector coffeeCupArguments
 					   andValues: aMessage arguments) ]
 		  ifFalse: [ super doesNotUnderstand: aMessage ]
 ]
 
 { #category : #initialization }
-RestApiEndpoint >> initialize [
+CoffeeCupEndpoint >> initialize [
 
 	super initialize.
 	parameters := Set new
 ]
 
 { #category : #'as yet unclassified' }
-RestApiEndpoint >> mappedPath: arguments [
+CoffeeCupEndpoint >> mappedPath: arguments [
 
 	^ self path format: (self mappedPathParameters: arguments)
 ]
 
 { #category : #'as yet unclassified' }
-RestApiEndpoint >> mappedPathParameters: arguments [
+CoffeeCupEndpoint >> mappedPathParameters: arguments [
 
 	| mapped |
 	mapped := Dictionary new.
@@ -107,7 +107,7 @@ RestApiEndpoint >> mappedPathParameters: arguments [
 						parameter default
 							ifNotNil: [ :defaultValue | 
 							mapped at: parameter name put: defaultValue ]
-							ifNil: [ RestApiError signalMissingArgument: parameter ] ] ]
+							ifNil: [ CoffeeCupError signalMissingArgument: parameter ] ] ]
 			ifFalse: [ 
 				arguments
 					at: parameter key
@@ -117,7 +117,7 @@ RestApiEndpoint >> mappedPathParameters: arguments [
 ]
 
 { #category : #'as yet unclassified' }
-RestApiEndpoint >> mappedQueryParameters: arguments [
+CoffeeCupEndpoint >> mappedQueryParameters: arguments [
 
 	| mapped |
 	mapped := Dictionary new.
@@ -132,7 +132,7 @@ RestApiEndpoint >> mappedQueryParameters: arguments [
 						parameter default
 							ifNotNil: [ :defaultValue | 
 							mapped at: parameter name put: defaultValue ]
-							ifNil: [ RestApiError signalMissingArgument: parameter ] ] ]
+							ifNil: [ CoffeeCupError signalMissingArgument: parameter ] ] ]
 			ifFalse: [ 
 				arguments
 					at: parameter key
@@ -142,38 +142,38 @@ RestApiEndpoint >> mappedQueryParameters: arguments [
 ]
 
 { #category : #'as yet unclassified' }
-RestApiEndpoint >> parameter: aString [
+CoffeeCupEndpoint >> parameter: aString [
 
 ^	parameters add:
-		(RestApiQueryParameter key: aString asRestApiSelector name: aString)
+		(CoffeeCupQueryParameter key: aString asCoffeeCupSelector name: aString)
 ]
 
 { #category : #accessing }
-RestApiEndpoint >> parameters [
+CoffeeCupEndpoint >> parameters [
 
 	^ parameters
 ]
 
 { #category : #accessing }
-RestApiEndpoint >> path [
+CoffeeCupEndpoint >> path [
 
 	^ path ifNil: [ name asSymbol ]
 ]
 
 { #category : #initialization }
-RestApiEndpoint >> path: aString [
+CoffeeCupEndpoint >> path: aString [
 
 
 	path := aString.
 
-	path restApiFormatParameters do: [ :pathParameter | 
-		parameters add: (RestApiPathParameter
-				 key: pathParameter asRestApiSelector
+	path coffeeCupFormatParameters do: [ :pathParameter | 
+		parameters add: (CoffeeCupPathParameter
+				 key: pathParameter asCoffeeCupSelector
 				 name: pathParameter) ]
 ]
 
 { #category : #initialization }
-RestApiEndpoint >> setApi: anApi name: aSymbol [
+CoffeeCupEndpoint >> setApi: anApi name: aSymbol [
 
 	api := anApi.
 	name := aSymbol.
@@ -181,7 +181,7 @@ RestApiEndpoint >> setApi: anApi name: aSymbol [
 ]
 
 { #category : #'instance creation' }
-RestApiEndpoint >> with: aBlockOrNil [
+CoffeeCupEndpoint >> with: aBlockOrNil [
 
 	aBlockOrNil ifNotNil: [ :block | block value: self ].
 ]

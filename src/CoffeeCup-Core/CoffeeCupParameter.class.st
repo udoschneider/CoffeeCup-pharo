@@ -1,5 +1,5 @@
 Class {
-	#name : #RestApiParameter,
+	#name : #CoffeeCupParameter,
 	#superclass : #Object,
 	#instVars : [
 		'key',
@@ -10,13 +10,13 @@ Class {
 }
 
 { #category : #'instance creation' }
-RestApiParameter class >> key: aSymbol name: aString [
+CoffeeCupParameter class >> key: aSymbol name: aString [
 
 	^ self new key: aSymbol setName: aString; yourself
 ]
 
 { #category : #comparing }
-RestApiParameter >> = anObject [
+CoffeeCupParameter >> = anObject [
 
 	^ anObject class = self class
 		  ifFalse: [ false ]
@@ -24,23 +24,23 @@ RestApiParameter >> = anObject [
 ]
 
 { #category : #accessing }
-RestApiParameter >> default [
+CoffeeCupParameter >> default [
 	^ default
 ]
 
 { #category : #accessing }
-RestApiParameter >> default: aString [ 
+CoffeeCupParameter >> default: aString [ 
 	default := aString
 ]
 
 { #category : #comparing }
-RestApiParameter >> hash [
+CoffeeCupParameter >> hash [
 
 	^ key hash
 ]
 
 { #category : #initialization }
-RestApiParameter >> initialize [
+CoffeeCupParameter >> initialize [
 
 	super initialize.
 
@@ -48,30 +48,30 @@ RestApiParameter >> initialize [
 ]
 
 { #category : #testing }
-RestApiParameter >> isPathParameter [
+CoffeeCupParameter >> isPathParameter [
 
 	^ false
 ]
 
 { #category : #testing }
-RestApiParameter >> isQueryParameter [
+CoffeeCupParameter >> isQueryParameter [
 
 	^ false
 ]
 
 { #category : #testing }
-RestApiParameter >> isRequired [
+CoffeeCupParameter >> isRequired [
 
 	self subclassResponsibility 
 ]
 
 { #category : #accessing }
-RestApiParameter >> key [
+CoffeeCupParameter >> key [
 	^ key
 ]
 
 { #category : #initialization }
-RestApiParameter >> key: aSymbol setName: aString [ 
+CoffeeCupParameter >> key: aSymbol setName: aString [ 
 
 	key := aSymbol.
 	name := aString.
@@ -79,12 +79,12 @@ RestApiParameter >> key: aSymbol setName: aString [
 ]
 
 { #category : #accessing }
-RestApiParameter >> name [
+CoffeeCupParameter >> name [
 	^ name
 ]
 
 { #category : #printing }
-RestApiParameter >> printOn: aStream [
+CoffeeCupParameter >> printOn: aStream [
 
 	super printOn: aStream.
 
@@ -97,7 +97,7 @@ RestApiParameter >> printOn: aStream [
 ]
 
 { #category : #'instance creation' }
-RestApiParameter >> with: aBlockOrNil [
+CoffeeCupParameter >> with: aBlockOrNil [
 
 	aBlockOrNil ifNotNil: [ :block | block value: self ]
 ]

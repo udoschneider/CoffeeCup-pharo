@@ -1,7 +1,7 @@
 Extension { #name : #Symbol }
 
 { #category : #'*CoffeeCup-Core' }
-Symbol >> asRestApiSelector [
+Symbol >> asCoffeeCupSelector [
 
 	^ (Character space join:
 		   ([ :each | each isAlphaNumeric not ] split: self)) asCamelCase uncapitalized 
@@ -9,7 +9,7 @@ Symbol >> asRestApiSelector [
 ]
 
 { #category : #'*CoffeeCup-Core' }
-Symbol >> restApiArgs [
+Symbol >> coffeeCupArguments [
 
 	| arguments |
 	self isUnary ifTrue: [ ^ #(  ) ].
@@ -18,12 +18,12 @@ Symbol >> restApiArgs [
 	^ arguments
 		  ifNotEmpty: [ 
 			  arguments at: 1 put: ('' join: arguments first splitCamelCase allButFirst).
-			  arguments collect: [ :each | each asRestApiSelector ] ]
+			  arguments collect: [ :each | each asCoffeeCupSelector ] ]
 		  ifEmpty: [ #(  ) ]
 ]
 
 { #category : #'*CoffeeCup-Core' }
-Symbol >> restApiMethod [
+Symbol >> coffeeCupMethod [
 
 	^ self splitCamelCase first 
 ]

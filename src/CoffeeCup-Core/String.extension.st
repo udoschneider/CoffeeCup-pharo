@@ -1,13 +1,13 @@
 Extension { #name : #String }
 
 { #category : #'*CoffeeCup-Core' }
-String >> asRestApiSelector [
+String >> asCoffeeCupSelector [
 
-	^self asSymbol asRestApiSelector
+	^self asSymbol asCoffeeCupSelector
 ]
 
 { #category : #'*CoffeeCup-Core' }
-String >> restApiFormatParameters [
+String >> coffeeCupFormatParameters [
 
 	^ OrderedCollection streamContents: [ :result | 
 		  | stream |

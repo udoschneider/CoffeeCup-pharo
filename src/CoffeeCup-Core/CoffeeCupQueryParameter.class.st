@@ -1,6 +1,6 @@
 Class {
-	#name : #RestApiQueryParameter,
-	#superclass : #RestApiParameter,
+	#name : #CoffeeCupQueryParameter,
+	#superclass : #CoffeeCupParameter,
 	#instVars : [
 		'required'
 	],
@@ -8,25 +8,25 @@ Class {
 }
 
 { #category : #initialization }
-RestApiQueryParameter >> initialize [
+CoffeeCupQueryParameter >> initialize [
 
 	super initialize.
 	required := false
 ]
 
 { #category : #testing }
-RestApiQueryParameter >> isQueryParameter [
+CoffeeCupQueryParameter >> isQueryParameter [
 
 	^ true
 ]
 
 { #category : #testing }
-RestApiQueryParameter >> isRequired [
+CoffeeCupQueryParameter >> isRequired [
 
 	^ required
 ]
 
 { #category : #accessing }
-RestApiQueryParameter >> required: aBoolean [ 
+CoffeeCupQueryParameter >> required: aBoolean [ 
 	required := aBoolean
 ]

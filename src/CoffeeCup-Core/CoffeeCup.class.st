@@ -1,5 +1,5 @@
 Class {
-	#name : #RestApi,
+	#name : #CoffeeCup,
 	#superclass : #Object,
 	#instVars : [
 		'baseUrl',
@@ -10,7 +10,7 @@ Class {
 }
 
 { #category : #accessing }
-RestApi class >> baseUrl: aStringOrUrl [
+CoffeeCup class >> baseUrl: aStringOrUrl [
 
 	^ self new
 		  baseUrl: aStringOrUrl;
@@ -18,56 +18,56 @@ RestApi class >> baseUrl: aStringOrUrl [
 ]
 
 { #category : #'as yet unclassified' }
-RestApi >> _endpoint: name path: path [
+CoffeeCup >> _endpoint: name path: path [
 
 	^ self endpoint: name path: path with: nil
 ]
 
 { #category : #'as yet unclassified' }
-RestApi >> _endpoint: name path: path with: aBlockOrNil [
+CoffeeCup >> _endpoint: name path: path with: aBlockOrNil [
 
 	| endpoint |
 	endpoint := endpoints
-		            at: name asRestApiSelector
-		            put: (RestApiEndpoint api: self name: name asSymbol).
+		            at: name asCoffeeCupSelector
+		            put: (CoffeeCupEndpoint api: self name: name asSymbol).
 	aBlockOrNil ifNotNil: [ :block | block value: endpoint ].
 	^ endpoint
 ]
 
 { #category : #'as yet unclassified' }
-RestApi >> _parameter: parameter required: aBoolean default: defaultValue [
+CoffeeCup >> _parameter: parameter required: aBoolean default: defaultValue [
 
-	parameters add: (RestApiQueryParameter
-			 key: parameter asRestApiSelector
+	parameters add: (CoffeeCupQueryParameter
+			 key: parameter asCoffeeCupSelector
 			 name: parameter
 			 required: aBoolean
 			 default: defaultValue)
 ]
 
 { #category : #accessing }
-RestApi >> baseUrl [
+CoffeeCup >> baseUrl [
 
 	^ baseUrl
 ]
 
 { #category : #accessing }
-RestApi >> baseUrl: aStringOrUrl [
+CoffeeCup >> baseUrl: aStringOrUrl [
 
 	baseUrl := aStringOrUrl asUrl
 ]
 
 { #category : #private }
-RestApi >> client [
+CoffeeCup >> client [
 
 	^ ZnClient new
 ]
 
 { #category : #'reflective operations' }
-RestApi >> doesNotUnderstand: aMessage [
+CoffeeCup >> doesNotUnderstand: aMessage [
 
 	| endpointOrNamespace |
 	endpointOrNamespace := aMessage selector splitCamelCase first
-		                       asRestApiSelector.
+		                       asCoffeeCupSelector.
 	^ endpoints
 		  at: endpointOrNamespace
 		  ifPresent: [ :each | each ]
@@ -75,20 +75,20 @@ RestApi >> doesNotUnderstand: aMessage [
 ]
 
 { #category : #'as yet unclassified' }
-RestApi >> endpoint: aString [
+CoffeeCup >> endpoint: aString [
 
 	^ endpoints
-		            at: aString asRestApiSelector
+		            at: aString asCoffeeCupSelector
 		            put:
-		            (RestApiEndpoint
+		            (CoffeeCupEndpoint
 			             api: self
-			             name: aString asRestApiSelector
+			             name: aString asCoffeeCupSelector
 			            ).
 	
 ]
 
 { #category : #initialization }
-RestApi >> initialize [
+CoffeeCup >> initialize [
 
 	super initialize.
 	endpoints := Dictionary new.
@@ -96,20 +96,20 @@ RestApi >> initialize [
 ]
 
 { #category : #'as yet unclassified' }
-RestApi >> parameter: aString [
+CoffeeCup >> parameter: aString [
 
 	^parameters add:
-		(RestApiQueryParameter key: aString asRestApiSelector name: aString)
+		(CoffeeCupQueryParameter key: aString asCoffeeCupSelector name: aString)
 ]
 
 { #category : #accessing }
-RestApi >> parameters [
+CoffeeCup >> parameters [
 
 	^ parameters
 ]
 
 { #category : #accessing }
-RestApi >> request: aRequest [
+CoffeeCup >> request: aRequest [
 ^ self client
 		  request: aRequest;
 		  execute;

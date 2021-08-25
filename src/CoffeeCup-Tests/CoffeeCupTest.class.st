@@ -1,5 +1,5 @@
 Class {
-	#name : #RestApiTest,
+	#name : #CoffeeCupTest,
 	#superclass : #TestCase,
 	#instVars : [
 		'api'
@@ -8,19 +8,19 @@ Class {
 }
 
 { #category : #initialization }
-RestApiTest class >> apiClass [
+CoffeeCupTest class >> apiClass [
 
-	^ TestableRestApi
+	^ TestableCoffeeCup
 ]
 
 { #category : #asserting }
-RestApiTest >> assertRequest: aRequest equals: anUrlOrString [
+CoffeeCupTest >> assertRequest: aRequest equals: anUrlOrString [
 
 	self assert: aRequest url equals: anUrlOrString asUrl
 ]
 
 { #category : #initialization }
-RestApiTest >> setUp [
+CoffeeCupTest >> setUp [
 
 	| urlString |
 	urlString := 'https://reqres.in/api'.
@@ -28,13 +28,13 @@ RestApiTest >> setUp [
 ]
 
 { #category : #tests }
-RestApiTest >> testBaseUrl [
+CoffeeCupTest >> testBaseUrl [
 
 	self assert: api baseUrl equals: 'https://reqres.in/api' asUrl
 ]
 
 { #category : #tests }
-RestApiTest >> testDefaultOverwrite [
+CoffeeCupTest >> testDefaultOverwrite [
 
 	(api parameter: 'api_key')
 		required: true;
@@ -48,7 +48,7 @@ RestApiTest >> testDefaultOverwrite [
 ]
 
 { #category : #tests }
-RestApiTest >> testEndpointBlock [
+CoffeeCupTest >> testEndpointBlock [
 
 	"Optional parameters are only used if given."
 
@@ -63,7 +63,7 @@ RestApiTest >> testEndpointBlock [
 ]
 
 { #category : #tests }
-RestApiTest >> testEndpointCascase [
+CoffeeCupTest >> testEndpointCascase [
 
 	"Optional parameters are only used if given."
 
@@ -76,7 +76,7 @@ RestApiTest >> testEndpointCascase [
 ]
 
 { #category : #tests }
-RestApiTest >> testIsRestApiCall [
+CoffeeCupTest >> testIsRestApiCall [
 
 	self
 		assert: #get isRestApiCall;
@@ -86,7 +86,7 @@ RestApiTest >> testIsRestApiCall [
 ]
 
 { #category : #tests }
-RestApiTest >> testOptionalParameter [
+CoffeeCupTest >> testOptionalParameter [
 
 	"Optional parameters are only used if given."
 
@@ -99,7 +99,7 @@ RestApiTest >> testOptionalParameter [
 ]
 
 { #category : #tests }
-RestApiTest >> testParameterNaming [
+CoffeeCupTest >> testParameterNaming [
 
 	"Map API parameter names (e.g. 'page_size') to Smalltalk like names
 	in the method selector (e.g. 'pageSize')"
@@ -112,7 +112,7 @@ RestApiTest >> testParameterNaming [
 ]
 
 { #category : #tests }
-RestApiTest >> testPathParameter [
+CoffeeCupTest >> testPathParameter [
 
 	(api endpoint: #user) path: '/users/{id}'.
 	self
@@ -121,7 +121,7 @@ RestApiTest >> testPathParameter [
 ]
 
 { #category : #tests }
-RestApiTest >> testQueryParameter [
+CoffeeCupTest >> testQueryParameter [
 
 	(api endpoint: #users) with: [ :endpoint | 
 		(endpoint parameter: #page) required: false ].
@@ -131,20 +131,20 @@ RestApiTest >> testQueryParameter [
 ]
 
 { #category : #tests }
-RestApiTest >> testRequiredParameter [
+CoffeeCupTest >> testRequiredParameter [
 
 	"Raise an error if required Parameter has no default and isn't given in the arguments"
 
 	(api parameter: 'api_key' )required: true.
 	(api endpoint: #users) parameter: #page.
 	self
-		should: [ api users getPage: 2 ] raise: RestApiError;
+		should: [ api users getPage: 2 ] raise: CoffeeCupError;
 		shouldnt: [ api users getPage: 2 apiKey: '123' ]
-		raise: RestApiError
+		raise: CoffeeCupError
 ]
 
 { #category : #tests }
-RestApiTest >> testRequiredParameterWithDefault [
+CoffeeCupTest >> testRequiredParameterWithDefault [
 
 	"Don't raise an error if required Parameter a default "
 
@@ -152,52 +152,52 @@ RestApiTest >> testRequiredParameterWithDefault [
 		required: true;
 		default: 123.
 	(api endpoint: #users)  parameter: #page .
-	self shouldnt: [ api users getPage: 2 ] raise: RestApiError
+	self shouldnt: [ api users getPage: 2 ] raise: CoffeeCupError
 ]
 
 { #category : #tests }
-RestApiTest >> testRestApiArgs [
+CoffeeCupTest >> testRestApiArgs [
 
 	self
-		assertCollection: #get restApiArgs hasSameElements: #(  );
-		assertCollection: #getPage: restApiArgs
+		assertCollection: #get coffeeCupArguments hasSameElements: #(  );
+		assertCollection: #getPage: coffeeCupArguments
 		hasSameElements: #( page );
-		assertCollection: #getPage:pageSize: restApiArgs
+		assertCollection: #getPage:pageSize: coffeeCupArguments
 	
 		hasSameElements: #( page pageSize )
 ]
 
 { #category : #tests }
-RestApiTest >> testRestApiFormatParameters [
+CoffeeCupTest >> testRestApiFormatParameters [
 
 	self
-		assertCollection: '/users/blah' restApiFormatParameters hasSameElements: #(  );
-		assertCollection: '/users/{foo}blah' restApiFormatParameters
+		assertCollection: '/users/blah' coffeeCupFormatParameters hasSameElements: #(  );
+		assertCollection: '/users/{foo}blah' coffeeCupFormatParameters
 		hasSameElements: #( 'foo' );
-		assertCollection: '/users/{foo}blah/{bar}' restApiFormatParameters
+		assertCollection: '/users/{foo}blah/{bar}' coffeeCupFormatParameters
 		hasSameElements: #( 'foo' 'bar' )
 ]
 
 { #category : #tests }
-RestApiTest >> testRestApiMethod [
+CoffeeCupTest >> testRestApiMethod [
 
 	self
-		assert: #get restApiMethod equals: #get;
-		assert: #getPage: restApiMethod equals: #get;
-		assert: #getPage:pageSize: restApiMethod equals: #get
+		assert: #get coffeeCupMethod equals: #get;
+		assert: #getPage: coffeeCupMethod equals: #get;
+		assert: #getPage:pageSize: coffeeCupMethod equals: #get
 ]
 
 { #category : #tests }
-RestApiTest >> testRestApiSelector [
+CoffeeCupTest >> testRestApiSelector [
 
 	self
-		assert: 'page' asRestApiSelector equals: #page;
-		assert: 'page_size' asRestApiSelector equals: #pageSize;
-		assert: 'Page-size' asRestApiSelector equals: #pageSize
+		assert: 'page' asCoffeeCupSelector equals: #page;
+		assert: 'page_size' asCoffeeCupSelector equals: #pageSize;
+		assert: 'Page-size' asCoffeeCupSelector equals: #pageSize
 ]
 
 { #category : #tests }
-RestApiTest >> testSuperflousArgument [
+CoffeeCupTest >> testSuperflousArgument [
 
 	"Verify that optional parameters are only used if given.
 	Prevent superflous arguments from being used."
@@ -211,7 +211,7 @@ RestApiTest >> testSuperflousArgument [
 ]
 
 { #category : #tests }
-RestApiTest >> testUnusedDefault [
+CoffeeCupTest >> testUnusedDefault [
 
 	"Optional Parameters with defaults are kind of pointless and do not appear
 	in the URL unless given as argument"

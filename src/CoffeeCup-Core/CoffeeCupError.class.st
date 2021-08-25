@@ -1,11 +1,11 @@
 Class {
-	#name : #RestApiError,
+	#name : #CoffeeCupError,
 	#superclass : #Error,
 	#category : #'CoffeeCup-Core'
 }
 
 { #category : #'as yet unclassified' }
-RestApiError class >> signalMissingArgument: parameter [
+CoffeeCupError class >> signalMissingArgument: parameter [
 
 	^ self signal:
 		  'Parameter ' , parameter name , ' (' , parameter key printString

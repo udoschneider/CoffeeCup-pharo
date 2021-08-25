@@ -1,5 +1,5 @@
 Class {
-	#name : #RestApiResources,
+	#name : #CoffeeCupTestResources,
 	#superclass : #TestResource,
 	#instVars : [
 		'cache'
@@ -8,14 +8,14 @@ Class {
 }
 
 { #category : #initialization }
-RestApiResources >> initialize [
+CoffeeCupTestResources >> initialize [
 
 	super initialize.
 	cache := TTLCache new
 ]
 
 { #category : #initialization }
-RestApiResources >> request: aUrl [
+CoffeeCupTestResources >> request: aUrl [
 
 	^cache at: aUrl ifAbsentPut: [ (ZnEasy get: aUrl) contents ]
 ]
