@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'baseUrl',
 		'endpoints',
-		'parameters'
+		'queryParameters'
 	],
 	#category : #'CoffeeCup-Core'
 }
@@ -17,31 +17,48 @@ CoffeeCup class >> baseUrl: aStringOrUrl [
 		  yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #deprecated }
+CoffeeCup >> _doesNotUnderstand: aMessage [
+
+	| endpointOrNamespace |
+	endpointOrNamespace := aMessage selector splitCamelCase first
+		                       asCoffeeCupSelector.
+	^ endpoints
+		  at: endpointOrNamespace
+		  ifPresent: [ :each | each ]
+		  ifAbsentPut: [ super doesNotUnderstand: aMessage ]
+]
+
+{ #category : #deprecated }
 CoffeeCup >> _endpoint: name path: path [
 
 	^ self endpoint: name path: path with: nil
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #deprecated }
 CoffeeCup >> _endpoint: name path: path with: aBlockOrNil [
 
 	| endpoint |
 	endpoint := endpoints
 		            at: name asCoffeeCupSelector
-		            put: (CoffeeCupEndpoint api: self name: name asSymbol).
+		            put: (CoffeeCupEndpoint namespace: self name: name asSymbol).
 	aBlockOrNil ifNotNil: [ :block | block value: endpoint ].
 	^ endpoint
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #deprecated }
 CoffeeCup >> _parameter: parameter required: aBoolean default: defaultValue [
 
-	parameters add: (CoffeeCupQueryParameter
+	queryParameters add: (CoffeeCupQueryParameter
 			 key: parameter asCoffeeCupSelector
 			 name: parameter
 			 required: aBoolean
 			 default: defaultValue)
+]
+
+{ #category : #accessing }
+CoffeeCup >> allParameters [ 
+^queryParameters 
 ]
 
 { #category : #accessing }
@@ -56,7 +73,7 @@ CoffeeCup >> baseUrl: aStringOrUrl [
 	baseUrl := aStringOrUrl asUrl
 ]
 
-{ #category : #private }
+{ #category : #accessing }
 CoffeeCup >> client [
 
 	^ ZnClient new
@@ -65,26 +82,26 @@ CoffeeCup >> client [
 { #category : #'reflective operations' }
 CoffeeCup >> doesNotUnderstand: aMessage [
 
-	| endpointOrNamespace |
-	endpointOrNamespace := aMessage selector splitCamelCase first
-		                       asCoffeeCupSelector.
-	^ endpoints
-		  at: endpointOrNamespace
-		  ifPresent: [ :each | each ]
-		  ifAbsentPut: [ super doesNotUnderstand: aMessage ]
+	^ (self splitSelector: aMessage selector)
+		  ifNil: [ ^ super doesNotUnderstand: aMessage ]
+		  ifNotNil: [ :splitted | 
+			  | endpoint arguments |
+			  endpoint := splitted first.
+			  arguments := Dictionary
+				               newFromKeys: splitted second
+				               andValues: aMessage arguments.
+			  endpoint callWith: arguments ]
 ]
 
-{ #category : #'as yet unclassified' }
-CoffeeCup >> endpoint: aString [
+{ #category : #configuration }
+CoffeeCup >> endpoint: aSymbolOrString [
+
+	| selector |
+	selector := aSymbolOrString asCoffeeCupSelector.
 
 	^ endpoints
-		            at: aString asCoffeeCupSelector
-		            put:
-		            (CoffeeCupEndpoint
-			             api: self
-			             name: aString asCoffeeCupSelector
-			            ).
-	
+		  at: selector
+		  put: (CoffeeCupEndpoint namespace: self name: selector)
 ]
 
 { #category : #initialization }
@@ -92,27 +109,54 @@ CoffeeCup >> initialize [
 
 	super initialize.
 	endpoints := Dictionary new.
-	parameters := Set new
+	queryParameters := Set new
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #configuration }
 CoffeeCup >> parameter: aString [
 
-	^parameters add:
+	^queryParameters add:
 		(CoffeeCupQueryParameter key: aString asCoffeeCupSelector name: aString)
 ]
 
 { #category : #accessing }
-CoffeeCup >> parameters [
+CoffeeCup >> queryParameters [
 
-	^ parameters
+	^ queryParameters
 ]
 
-{ #category : #accessing }
+{ #category : #private }
 CoffeeCup >> request: aRequest [
 ^ self client
 		  request: aRequest;
 		  execute;
 		  contents
 
+]
+
+{ #category : #private }
+CoffeeCup >> splitSelector: selector [
+
+	| splitted arguments |
+	splitted := ($: split: selector) select: #notEmpty.
+
+	arguments := splitted allButFirst.
+
+	splitted := splitted first splitCamelCase.
+	1 to: splitted size do: [ :index | 
+		| possibleSelector |
+		possibleSelector := ('' join: (splitted copyFrom: 1 to: index))
+			                    asCoffeeCupSelector.
+
+		endpoints at: possibleSelector ifPresent: [ :endpoint | 
+			| firstArgument |
+			firstArgument := { ('' join: (splitted allButFirst: index)) }.
+			arguments := (firstArgument , arguments
+				              select: #notEmpty
+				              thenCollect: [ :each | each asCoffeeCupSelector ])
+				             asArray.
+			^ { 
+				  endpoint.
+				  arguments } ] ].
+	^ nil
 ]

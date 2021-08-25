@@ -2,23 +2,38 @@ Class {
 	#name : #CoffeeCupEndpoint,
 	#superclass : #Object,
 	#instVars : [
-		'api',
+		'namespace',
 		'name',
 		'path',
-		'parameters'
+		'pathParameters',
+		'queryParameters'
 	],
 	#category : #'CoffeeCup-Core'
 }
 
 { #category : #'instance creation' }
-CoffeeCupEndpoint class >> api: anApi name: aSymbol [
+CoffeeCupEndpoint class >> namespace: aNamespace name: aSymbol [
 
 	^ self new
-		  setApi: anApi name: aSymbol;
+		  setNamespace: aNamespace name: aSymbol;
 		  yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #deprecated }
+CoffeeCupEndpoint >> _doesNotUnderstand: aMessage [
+
+	| selector |
+	selector := aMessage selector.
+
+	^ selector isRestApiCall
+		  ifTrue: [ 
+			  self call: selector coffeeCupMethod with: (OrderedDictionary
+					   newFromKeys: selector coffeeCupArguments
+					   andValues: aMessage arguments) ]
+		  ifFalse: [ super doesNotUnderstand: aMessage ]
+]
+
+{ #category : #deprecated }
 CoffeeCupEndpoint >> _parameter: parameter required: aBoolean default: defaultValue [
 
 	parameters add: (CoffeeCupQueryParameter
@@ -31,7 +46,7 @@ CoffeeCupEndpoint >> _parameter: parameter required: aBoolean default: defaultVa
 { #category : #accessing }
 CoffeeCupEndpoint >> allParameters [
 
-	^ api parameters, parameters 
+	^ namespace allParameters , pathParameters , queryParameters 
 ]
 
 { #category : #accessing }
@@ -47,51 +62,38 @@ CoffeeCupEndpoint >> allQueryParameters [
 	^ self allParameters select: #isQueryParameter
 ]
 
-{ #category : #'as yet unclassified' }
-CoffeeCupEndpoint >> call: method with: arguments [
+{ #category : #private }
+CoffeeCupEndpoint >> callWith: arguments [
 
 	| mappedPath url request |
 	mappedPath := self mappedPath: arguments.
-	url := api baseUrl / mappedPath.
-	
+	url := namespace baseUrl / mappedPath.
+
 	(self mappedQueryParameters: arguments) keysAndValuesDo: [ :key :value | 
 		url queryAt: key put: value ].
 
 	request := ZnRequest
-		           method: method asCoffeeCupSelector asUppercase
+		           method: self method asCoffeeCupSelector asUppercase
 		           url: url.
 
-	^ api request: request
-]
-
-{ #category : #'reflective operations' }
-CoffeeCupEndpoint >> doesNotUnderstand: aMessage [
-
-	| selector |
-	selector := aMessage selector.
-
-	^ selector isRestApiCall
-		  ifTrue: [ 
-			  self call: selector coffeeCupMethod with: (OrderedDictionary
-					   newFromKeys: selector coffeeCupArguments
-					   andValues: aMessage arguments) ]
-		  ifFalse: [ super doesNotUnderstand: aMessage ]
+	^ namespace request: request
 ]
 
 { #category : #initialization }
 CoffeeCupEndpoint >> initialize [
 
 	super initialize.
-	parameters := Set new
+	pathParameters  := Set new.
+	queryParameters := Set new.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #private }
 CoffeeCupEndpoint >> mappedPath: arguments [
 
 	^ self path format: (self mappedPathParameters: arguments)
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #private }
 CoffeeCupEndpoint >> mappedPathParameters: arguments [
 
 	| mapped |
@@ -116,7 +118,7 @@ CoffeeCupEndpoint >> mappedPathParameters: arguments [
 	^ mapped
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #private }
 CoffeeCupEndpoint >> mappedQueryParameters: arguments [
 
 	| mapped |
@@ -141,17 +143,18 @@ CoffeeCupEndpoint >> mappedQueryParameters: arguments [
 	^ mapped
 ]
 
-{ #category : #'as yet unclassified' }
-CoffeeCupEndpoint >> parameter: aString [
+{ #category : #accessing }
+CoffeeCupEndpoint >> method [
 
-^	parameters add:
-		(CoffeeCupQueryParameter key: aString asCoffeeCupSelector name: aString)
+^#get
 ]
 
-{ #category : #accessing }
-CoffeeCupEndpoint >> parameters [
+{ #category : #private }
+CoffeeCupEndpoint >> parameter: aString [
 
-	^ parameters
+	^ pathParameters  add: (CoffeeCupQueryParameter
+			   key: aString asCoffeeCupSelector
+			   name: aString)
 ]
 
 { #category : #accessing }
@@ -160,27 +163,27 @@ CoffeeCupEndpoint >> path [
 	^ path ifNil: [ name asSymbol ]
 ]
 
-{ #category : #initialization }
+{ #category : #accessing }
 CoffeeCupEndpoint >> path: aString [
-
 
 	path := aString.
 
-	path coffeeCupFormatParameters do: [ :pathParameter | 
-		parameters add: (CoffeeCupPathParameter
-				 key: pathParameter asCoffeeCupSelector
-				 name: pathParameter) ]
+	queryParameters := (path coffeeCupFormatParameters collect: [ 
+		                    :pathParameter | 
+		                    CoffeeCupPathParameter
+			                    key: pathParameter asCoffeeCupSelector
+			                    name: pathParameter ]) asSet
 ]
 
 { #category : #initialization }
-CoffeeCupEndpoint >> setApi: anApi name: aSymbol [
+CoffeeCupEndpoint >> setNamespace: aNamespace name: aSymbol [
 
-	api := anApi.
+	namespace := aNamespace.
 	name := aSymbol.
 	
 ]
 
-{ #category : #'instance creation' }
+{ #category : #configuration }
 CoffeeCupEndpoint >> with: aBlockOrNil [
 
 	aBlockOrNil ifNotNil: [ :block | block value: self ].

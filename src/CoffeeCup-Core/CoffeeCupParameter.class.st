@@ -12,7 +12,7 @@ Class {
 { #category : #'instance creation' }
 CoffeeCupParameter class >> key: aSymbol name: aString [
 
-	^ self new key: aSymbol setName: aString; yourself
+	^ self new setKey: aSymbol name: aString; yourself
 ]
 
 { #category : #comparing }
@@ -70,14 +70,6 @@ CoffeeCupParameter >> key [
 	^ key
 ]
 
-{ #category : #initialization }
-CoffeeCupParameter >> key: aSymbol setName: aString [ 
-
-	key := aSymbol.
-	name := aString.
-	
-]
-
 { #category : #accessing }
 CoffeeCupParameter >> name [
 	^ name
@@ -96,7 +88,15 @@ CoffeeCupParameter >> printOn: aStream [
 		nextPut: $)
 ]
 
-{ #category : #'instance creation' }
+{ #category : #initialization }
+CoffeeCupParameter >> setKey: aSymbol name: aString [ 
+
+	key := aSymbol.
+	name := aString.
+	
+]
+
+{ #category : #configuration }
 CoffeeCupParameter >> with: aBlockOrNil [
 
 	aBlockOrNil ifNotNil: [ :block | block value: self ]

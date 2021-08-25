@@ -1,15 +1,7 @@
 Extension { #name : #Symbol }
 
 { #category : #'*CoffeeCup-Core' }
-Symbol >> asCoffeeCupSelector [
-
-	^ (Character space join:
-		   ([ :each | each isAlphaNumeric not ] split: self)) asCamelCase uncapitalized 
-		  asValidSelector
-]
-
-{ #category : #'*CoffeeCup-Core' }
-Symbol >> coffeeCupArguments [
+Symbol >> _coffeeCupArguments [
 
 	| arguments |
 	self isUnary ifTrue: [ ^ #(  ) ].
@@ -17,13 +9,24 @@ Symbol >> coffeeCupArguments [
 
 	^ arguments
 		  ifNotEmpty: [ 
-			  arguments at: 1 put: ('' join: arguments first splitCamelCase allButFirst).
+			  arguments
+				  at: 1
+				  put: ('' join: arguments first splitCamelCase allButFirst).
 			  arguments collect: [ :each | each asCoffeeCupSelector ] ]
 		  ifEmpty: [ #(  ) ]
 ]
 
 { #category : #'*CoffeeCup-Core' }
-Symbol >> coffeeCupMethod [
+Symbol >> _isRestApiCall [
 
-	^ self splitCamelCase first 
+	^ (self isKeyword or: [ self isUnary ]) and: [ 
+		  #( get ) includes: self coffeeCupMethod asCoffeeCupSelector ]
+]
+
+{ #category : #'*CoffeeCup-Core' }
+Symbol >> asCoffeeCupSelector [
+
+	^ (Character space join:
+		   ([ :each | each isAlphaNumeric not ] split: self)) asCamelCase uncapitalized 
+		  asValidSelector
 ]
