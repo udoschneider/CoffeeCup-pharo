@@ -1,6 +1,6 @@
 Class {
 	#name : #CoffeeCupApi,
-	#superclass : #CoffeeCupPathObject,
+	#superclass : #CoffeeCupSpec,
 	#instVars : [
 		'baseUrl',
 		'children'
@@ -30,10 +30,10 @@ CoffeeCupApi class >> librariesIo: apiKey [
 			  documentation: 'https://libraries.io/api';
 			  parameter: #api_key do: [ :param | 
 				  param
-					  required: true;
-					  default: apiKey;
 					  description:
-						  'get your api key from your account page: https://libraries.io/account' ];
+						  'get your api key from your account page: https://libraries.io/account';
+					  required: true;
+					  default: apiKey ];
 			  parameter: #page
 			  do: [ :param | param description: 'page (default 1)' ];
 			  parameter: #per_page do: [ :param | 
@@ -42,14 +42,35 @@ CoffeeCupApi class >> librariesIo: apiKey [
 			  endpoint: #platforms do: [ :ep | 
 			  ep
 				  description: 'Get a list of supported package managers';
-				  documentation: 'https://libraries.io/api#platforms' ] ;
-			namespace: #platform do: [ :platform | ]]
+				  documentation: 'https://libraries.io/api#platforms' ];
+			  namespace: #platform do: [ :platform | 
+			  platform
+				  path: '{id}';
+				  namespace: #project do: [ :project | 
+					  project
+						  path: '{id}';
+						  endpoint: #info do: [ :info | 
+							  info
+								  documentation:
+									  'Get information about a package and it''s versions"';
+								  path: '' ];
+						  endpoint: #dependencies do: [ :dependencies | 
+						  dependencies
+							  description:
+								  'Get a list of dependencies for a version of a project';
+							  path: '/{version}/dependencies';
+							  parameter: #version do: [ :version | version description: 'Project version' ] ];
+						  endpoint: #dependents;
+						  endpoint: #dependentRepositories;
+						  endpoint: #contributors;
+						  endpoint: #sourceRank;
+						  endpoint: #usage ] ] ]
 ]
 
-{ #category : #accessing }
-CoffeeCupApi >> allParameters [
+{ #category : #'double dispatch' }
+CoffeeCupApi >> appendTo: aRequest with: arguments [
 
-	^ self pathParameters , self queryParameters
+	^ aRequest copyAppendApi: self with: arguments
 ]
 
 { #category : #accessing }
@@ -73,15 +94,7 @@ CoffeeCupApi >> client [
 { #category : #'reflective operations' }
 CoffeeCupApi >> doesNotUnderstand: aMessage [
 
-	^ (self splitSelector: aMessage selector)
-		  ifNil: [ ^ super doesNotUnderstand: aMessage ]
-		  ifNotNil: [ :splitted | 
-			  | endpoint arguments |
-			  endpoint := splitted first.
-			  arguments := Dictionary
-				               newFromKeys: splitted second
-				               andValues: aMessage arguments.
-			  endpoint callWith: arguments ]
+	^ aMessage sendTo: self handler
 ]
 
 { #category : #configuration }
@@ -101,10 +114,10 @@ CoffeeCupApi >> endpoint: aSymbolOrString do: aBlock [
 	^ (self endpoint: aSymbolOrString) do: aBlock
 ]
 
-{ #category : #accessing }
-CoffeeCupApi >> fullPath [
+{ #category : #private }
+CoffeeCupApi >> handler [
 
-	^ self path
+	^ CoffeeCupHandler new copyAppend: self with: Dictionary new
 ]
 
 { #category : #initialization }
@@ -150,7 +163,7 @@ CoffeeCupApi >> path [
 ^path ifNil: [ ^'' ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #printing }
 CoffeeCupApi >> printOn: aStream [
 
 	super printOn: aStream.

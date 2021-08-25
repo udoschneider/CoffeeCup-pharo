@@ -10,7 +10,7 @@ Class {
 { #category : #initialization }
 CoffeeCupTest class >> apiClass [
 
-	^ TestableCoffeeCup
+	^ TestableCoffeeCupApi
 ]
 
 { #category : #asserting }
@@ -25,6 +25,18 @@ CoffeeCupTest >> setUp [
 	| urlString |
 	urlString := 'https://ydlmz.mocklab.io'.
 	api := self class apiClass baseUrl: urlString
+]
+
+{ #category : #tests }
+CoffeeCupTest >> testApiPath [
+
+	api := self class apiClass
+		       baseUrl: 'https://ydlmz.mocklab.io'
+		       do: [ :api2 | api2 path: 'api' ].
+
+	self
+		assert: api handler url
+		equals: 'https://ydlmz.mocklab.io/api' asUrl
 ]
 
 { #category : #tests }
@@ -55,6 +67,55 @@ CoffeeCupTest >> testDefaultOverwrite [
 		equalsUrl: 'https://ydlmz.mocklab.io/users?api_key=INVALID-KEY';
 		assertRequest: (api usersApiKey: 1234)
 		equalsUrl: 'https://ydlmz.mocklab.io/users?api_key=1234'
+]
+
+{ #category : #tests }
+CoffeeCupTest >> testDescription [
+
+	self
+		shouldnt: [ 
+			api
+				description: 'Api Description';
+				namespace: #foo do: [ :ns | 
+					ns
+						description: 'Namespace Description';
+						endpoint: #bar do: [ :ep | 
+							ep
+								description: 'Endpoint Description';
+								parameter: #baz
+								do: [ :param | param description: 'Parameter Description' ] ] ] ]
+		raise: Error
+]
+
+{ #category : #tests }
+CoffeeCupTest >> testDocumentation [
+
+	self shouldnt: [ 
+		api
+			documentation: 'Api Doc';
+			namespace: #foo do: [ :ns | 
+				ns
+					documentation: 'Namespace Doc';
+					endpoint: #bar do: [ :ep | 
+						ep
+							documentation: 'Endpoint Doc';
+							parameter: #baz
+							do: [ :param | param documentation: 'Parameter Doc' ] ] ] ] raise: Error
+]
+
+{ #category : #tests }
+CoffeeCupTest >> testDocumentationForPathParameters [
+
+	| parameter endpoint |
+	api endpoint: #user do: [ :ep | 
+		endpoint := ep path: '/users/{id}'.
+		parameter := ep
+			             parameter: #id
+			             do: [ :id | id documentation: 'Document me!' ] ].
+	self assert: endpoint queryParameters size equals: 0;
+	assert: endpoint pathParameters size equals: 1;
+	assert: (parameter isKindOf: CoffeeCupParameter );
+	assert: parameter documentation equals: 'Document me!' 
 ]
 
 { #category : #tests }
@@ -89,14 +150,13 @@ CoffeeCupTest >> testEndpointCascade [
 { #category : #tests }
 CoffeeCupTest >> testFormatParameters [
 
-
 	self
 		assertCollection: '/users/blah' coffeeCupFormatParameters
 		hasSameElements: #(  );
 		assertCollection: '/users/{foo}blah' coffeeCupFormatParameters
-		hasSameElements: #( 'foo' );
+		hasSameElements: #( #foo );
 		assertCollection: '/users/{foo}blah/{bar}' coffeeCupFormatParameters
-		hasSameElements: #( 'foo' 'bar' )
+		hasSameElements: #( #foo #bar )
 ]
 
 { #category : #tests }
@@ -107,27 +167,46 @@ CoffeeCupTest >> testMethodDefault [
 ]
 
 { #category : #tests }
-CoffeeCupTest >> testNamespace [
+CoffeeCupTest >> testNamedArguments [
 
-	api namespace: #namespace do: [ :namespace | 
-		namespace endpoint: #users do: [ :endpoint | 
-			endpoint
-				parameter: #page
-				do: [ :parameter | parameter required: false ] ].
-		namespace namespace: #container do: [ :container | 
-			container endpoint: #users do: [ :endpoint | 
-				endpoint parameter: #page do: [ :parameter | 
-					parameter required: false ] ] ] ].
+	api namespace: #foo do: [ :ns | 
+		ns
+			path: '{id}';
+			endpoint: #bar do: [ :endpoint | endpoint path: '{id}' ] ].
 
 	self
-		assertRequest: api namespace users
+		assertRequest: ((api fooId: 1) barId: 2)
+		equalsUrl: 'https://ydlmz.mocklab.io/1/2'
+]
+
+{ #category : #tests }
+CoffeeCupTest >> testNamespace [
+
+	api
+		namespace: #namespace do: [ :ns | 
+			ns
+				path: '{id}';
+				endpoint: #users do: [ :endpoint | 
+					endpoint
+						parameter: #page
+						do: [ :parameter | parameter required: false ] ].
+			ns namespace: #inner do: [ :innerNs | 
+				innerNs endpoint: #users do: [ :endpoint | 
+					endpoint
+						parameter: #page
+						do: [ :parameter | parameter required: false ] ] ] ];
+		namespace: #outer do: [ :ns | ns endpoint: #things ].
+
+	self
+		assertRequest: (api namespaceId: #namespace) users
 		equalsUrl: 'https://ydlmz.mocklab.io/namespace/users';
-		assertRequest: (api namespace usersPage: 2)
+		assertRequest: ((api namespaceId: #namespace) usersPage: 2)
 		equalsUrl: 'https://ydlmz.mocklab.io/namespace/users?page=2';
-		assertRequest: (api namespace container usersPage: 2)
+		assertRequest: ((api namespaceId: #namespace) inner usersPage: 2)
 		equalsUrl:
-			'https://ydlmz.mocklab.io/namespace/container/users?page=2';
-		should: [ (api namespaceArg: #foo) users ] raise: CoffeeCupError
+			'https://ydlmz.mocklab.io/namespace/inner/users?page=2';
+		assertRequest: api outer things
+		equalsUrl: 'https://ydlmz.mocklab.io/outer/things'
 ]
 
 { #category : #tests }
@@ -180,12 +259,11 @@ CoffeeCupTest >> testRequiredParameter [
 
 	"Raise an error if required Parameter has no default and isn't given in the arguments"
 
-	(api parameter: 'api_key') required: true.
+	api parameter: 'api_key' do: [ :param | param required: true ].
 	(api endpoint: #users) parameter: #page.
 	self
 		should: [ api usersPage: 2 ] raise: CoffeeCupError;
-		shouldnt: [ api usersPage: 2 apiKey: '123' ]
-		raise: CoffeeCupError
+		shouldnt: [ api usersPage: 2 apiKey: '123' ] raise: CoffeeCupError
 ]
 
 { #category : #tests }
@@ -234,6 +312,19 @@ CoffeeCupTest >> testSuperflousArgument [
 	self
 		assertRequest: (api usersFoo: 13)
 		equalsUrl: 'https://ydlmz.mocklab.io/users'
+]
+
+{ #category : #tests }
+CoffeeCupTest >> testUnnamedArguments [
+
+	api namespace: #foo do: [ :ns | 
+		ns
+			path: '{id}';
+			endpoint: #bar do: [ :endpoint | endpoint path: '{id}' ] ].
+
+	self
+		assertRequest: ((api foo: 1) bar: 2)
+		equalsUrl: 'https://ydlmz.mocklab.io/1/2'
 ]
 
 { #category : #tests }

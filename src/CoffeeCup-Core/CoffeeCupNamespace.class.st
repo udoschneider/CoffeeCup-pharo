@@ -1,6 +1,6 @@
 Class {
 	#name : #CoffeeCupNamespace,
-	#superclass : #CoffeeCupPathObject,
+	#superclass : #CoffeeCupSpec,
 	#instVars : [
 		'namespace',
 		'name',
@@ -17,40 +17,14 @@ CoffeeCupNamespace class >> namespace: aNamespace name: aSymbol [
 		  yourself
 ]
 
-{ #category : #accessing }
-CoffeeCupNamespace >> allParameters [
+{ #category : #'double dispatech' }
+CoffeeCupNamespace >> appendTo: aRequest with: arguments [
 
-	^ namespace allParameters , pathParameters , queryParameters
-]
-
-{ #category : #accessing }
-CoffeeCupNamespace >> baseUrl [
-
-	^ namespace baseUrl
-]
-
-{ #category : #private }
-CoffeeCupNamespace >> callWith: arguments [
-arguments notEmpty ifTrue: [ CoffeeCupError signal: 'Arguments for namespaces must not be provided!' ].
-	^ self
+	^ aRequest copyAppendNamespace: self with: arguments
 ]
 
 { #category : #accessing }
 CoffeeCupNamespace >> children [ ^children
-]
-
-{ #category : #'reflective operations' }
-CoffeeCupNamespace >> doesNotUnderstand: aMessage [
-
-	^ (self splitSelector: aMessage selector)
-		  ifNil: [ ^ super doesNotUnderstand: aMessage ]
-		  ifNotNil: [ :splitted | 
-			  | endpoint arguments |
-			  endpoint := splitted first.
-			  arguments := Dictionary
-				               newFromKeys: splitted second
-				               andValues: aMessage arguments.
-			  endpoint callWith: arguments ]
 ]
 
 { #category : #configuration }
@@ -70,30 +44,12 @@ CoffeeCupNamespace >> endpoint: aSymbolOrString do: aBlock [
 	^ (self endpoint: aSymbolOrString) do: aBlock
 ]
 
-{ #category : #accessing }
-CoffeeCupNamespace >> fullPath [
-
-	^ namespace fullPath , '/' , self path
-]
-
 { #category : #initialization }
 CoffeeCupNamespace >> initialize [
 
 	super initialize.
 	children := Dictionary new.
 
-]
-
-{ #category : #accessing }
-CoffeeCupNamespace >> name [
-
-	^ name
-]
-
-{ #category : #accessing }
-CoffeeCupNamespace >> namespace [
-
-	^ namespace
 ]
 
 { #category : #configuration }
@@ -117,6 +73,17 @@ CoffeeCupNamespace >> namespace: aSymbolOrString do: aBlock [
 CoffeeCupNamespace >> path [
 
 	^ path ifNil: [ name asString ]
+]
+
+{ #category : #printing }
+CoffeeCupNamespace >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream
+		space;
+		nextPut: $(;
+		print: name;
+		nextPut: $)
 ]
 
 { #category : #accessing }

@@ -18,9 +18,8 @@ String >> coffeeCupFormatParameters [
 				  ifTrue: [ 
 					  | expression |
 					  expression := stream upTo: $}.
-					  result nextPut: expression ]
+					  result nextPut: expression asSymbol  ]
 				  ifFalse: [ 
-					  currentChar == $\
-						  ifTrue: [ stream atEnd ifFalse: [ stream next ] ]
-						   ] ] ]
+				  currentChar == $\ ifTrue: [ 
+					  stream atEnd ifFalse: [ stream next ] ] ] ] ]
 ]

@@ -1,11 +1,11 @@
 Class {
-	#name : #TestableCoffeeCup,
+	#name : #TestableCoffeeCupApi,
 	#superclass : #CoffeeCupApi,
 	#category : #'CoffeeCup-Tests'
 }
 
 { #category : #accessing }
-TestableCoffeeCup >> request: aRequest [
+TestableCoffeeCupApi >> request: aRequest [
 
 	^aRequest
 ]

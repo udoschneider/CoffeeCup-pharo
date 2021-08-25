@@ -15,12 +15,6 @@ CoffeeCupQueryParameter >> initialize [
 ]
 
 { #category : #testing }
-CoffeeCupQueryParameter >> isQueryParameter [
-
-	^ true
-]
-
-{ #category : #testing }
 CoffeeCupQueryParameter >> isRequired [
 
 	^ required

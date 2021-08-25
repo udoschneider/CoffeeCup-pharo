@@ -5,7 +5,8 @@ Class {
 		'key',
 		'name',
 		'default',
-		'description'
+		'description',
+		'documentation'
 	],
 	#category : #'CoffeeCup-Core'
 }
@@ -46,30 +47,20 @@ CoffeeCupParameter >> do: aBlockOrNil [
 	aBlockOrNil ifNotNil: [ :block | block value: self ]
 ]
 
+{ #category : #accessing }
+CoffeeCupParameter >> documentation [
+	^ documentation
+]
+
+{ #category : #accessing }
+CoffeeCupParameter >> documentation: aString [ 
+	documentation := aString
+]
+
 { #category : #comparing }
 CoffeeCupParameter >> hash [
 
 	^ key hash
-]
-
-{ #category : #initialization }
-CoffeeCupParameter >> initialize [
-
-	super initialize.
-
-	default := nil
-]
-
-{ #category : #testing }
-CoffeeCupParameter >> isPathParameter [
-
-	^ false
-]
-
-{ #category : #testing }
-CoffeeCupParameter >> isQueryParameter [
-
-	^ false
 ]
 
 { #category : #testing }
@@ -85,6 +76,7 @@ CoffeeCupParameter >> key [
 
 { #category : #accessing }
 CoffeeCupParameter >> name [
+
 	^ name
 ]
 
@@ -96,8 +88,7 @@ CoffeeCupParameter >> printOn: aStream [
 	aStream
 		space;
 		nextPut: $(;
-		nextPutAll: name;
-	
+		print: name;
 		nextPut: $)
 ]
 

@@ -5,12 +5,6 @@ Class {
 }
 
 { #category : #testing }
-CoffeeCupPathParameter >> isPathParameter [
-
-	^ true
-]
-
-{ #category : #testing }
 CoffeeCupPathParameter >> isRequired [
 
 ^true	
