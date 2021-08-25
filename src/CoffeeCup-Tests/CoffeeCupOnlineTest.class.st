@@ -10,7 +10,7 @@ Class {
 { #category : #initialization }
 CoffeeCupOnlineTest class >> apiClass [
 
-	^ CoffeeCup
+	^ CoffeeCupApi
 ]
 
 { #category : #accessing }

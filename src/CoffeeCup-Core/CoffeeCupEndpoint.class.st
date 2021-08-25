@@ -1,12 +1,9 @@
 Class {
 	#name : #CoffeeCupEndpoint,
-	#superclass : #Object,
+	#superclass : #CoffeeCupPathObject,
 	#instVars : [
 		'namespace',
-		'name',
-		'path',
-		'pathParameters',
-		'queryParameters'
+		'name'
 	],
 	#category : #'CoffeeCup-Core'
 }
@@ -19,47 +16,16 @@ CoffeeCupEndpoint class >> namespace: aNamespace name: aSymbol [
 		  yourself
 ]
 
-{ #category : #deprecated }
-CoffeeCupEndpoint >> _doesNotUnderstand: aMessage [
-
-	| selector |
-	selector := aMessage selector.
-
-	^ selector isRestApiCall
-		  ifTrue: [ 
-			  self call: selector coffeeCupMethod with: (OrderedDictionary
-					   newFromKeys: selector coffeeCupArguments
-					   andValues: aMessage arguments) ]
-		  ifFalse: [ super doesNotUnderstand: aMessage ]
-]
-
-{ #category : #deprecated }
-CoffeeCupEndpoint >> _parameter: parameter required: aBoolean default: defaultValue [
-
-	parameters add: (CoffeeCupQueryParameter
-			 key: parameter asCoffeeCupSelector
-			 name: parameter
-			 required: aBoolean
-			 default: defaultValue)
-]
-
 { #category : #accessing }
 CoffeeCupEndpoint >> allParameters [
 
-	^ namespace allParameters , pathParameters , queryParameters 
+	^ namespace allParameters , pathParameters, queryParameters
 ]
 
 { #category : #accessing }
-CoffeeCupEndpoint >> allPathParameters [
+CoffeeCupEndpoint >> baseUrl [
 
-	^ self allParameters select: #isPathParameter  
-	
-]
-
-{ #category : #accessing }
-CoffeeCupEndpoint >> allQueryParameters [
-
-	^ self allParameters select: #isQueryParameter
+	^ namespace baseUrl
 ]
 
 { #category : #private }
@@ -67,7 +33,7 @@ CoffeeCupEndpoint >> callWith: arguments [
 
 	| mappedPath url request |
 	mappedPath := self mappedPath: arguments.
-	url := namespace baseUrl / mappedPath.
+	url := self baseUrl / mappedPath.
 
 	(self mappedQueryParameters: arguments) keysAndValuesDo: [ :key :value | 
 		url queryAt: key put: value ].
@@ -76,21 +42,19 @@ CoffeeCupEndpoint >> callWith: arguments [
 		           method: self method asCoffeeCupSelector asUppercase
 		           url: url.
 
-	^ namespace request: request
+	^ self request: request
 ]
 
-{ #category : #initialization }
-CoffeeCupEndpoint >> initialize [
+{ #category : #accessing }
+CoffeeCupEndpoint >> fullPath [
 
-	super initialize.
-	pathParameters  := Set new.
-	queryParameters := Set new.
+	^ namespace fullPath , '/' , self path
 ]
 
 { #category : #private }
 CoffeeCupEndpoint >> mappedPath: arguments [
 
-	^ self path format: (self mappedPathParameters: arguments)
+	^ self fullPath format: (self mappedPathParameters: arguments)
 ]
 
 { #category : #private }
@@ -149,30 +113,41 @@ CoffeeCupEndpoint >> method [
 ^#get
 ]
 
-{ #category : #private }
-CoffeeCupEndpoint >> parameter: aString [
+{ #category : #accessing }
+CoffeeCupEndpoint >> name [
 
-	^ pathParameters  add: (CoffeeCupQueryParameter
-			   key: aString asCoffeeCupSelector
-			   name: aString)
+	^ name
+]
+
+{ #category : #accessing }
+CoffeeCupEndpoint >> namespace [
+
+	^ namespace
+]
+
+{ #category : #configuration }
+CoffeeCupEndpoint >> parameter: aSymbolOrString [
+
+	^ queryParameters  add: (CoffeeCupQueryParameter
+			   key: aSymbolOrString asCoffeeCupSelector
+			   name: aSymbolOrString)
+]
+
+{ #category : #configuration }
+CoffeeCupEndpoint >> parameter: aSymbolOrString do: aBlock [
+^(self parameter: aSymbolOrString ) do: aBlock
 ]
 
 { #category : #accessing }
 CoffeeCupEndpoint >> path [
 
-	^ path ifNil: [ name asSymbol ]
+	^ path ifNil: [ name asString ]
 ]
 
-{ #category : #accessing }
-CoffeeCupEndpoint >> path: aString [
+{ #category : #private }
+CoffeeCupEndpoint >> request: request [
 
-	path := aString.
-
-	queryParameters := (path coffeeCupFormatParameters collect: [ 
-		                    :pathParameter | 
-		                    CoffeeCupPathParameter
-			                    key: pathParameter asCoffeeCupSelector
-			                    name: pathParameter ]) asSet
+	^ namespace request: request
 ]
 
 { #category : #initialization }
@@ -181,10 +156,4 @@ CoffeeCupEndpoint >> setNamespace: aNamespace name: aSymbol [
 	namespace := aNamespace.
 	name := aSymbol.
 	
-]
-
-{ #category : #configuration }
-CoffeeCupEndpoint >> with: aBlockOrNil [
-
-	aBlockOrNil ifNotNil: [ :block | block value: self ].
 ]

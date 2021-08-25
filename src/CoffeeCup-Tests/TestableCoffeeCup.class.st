@@ -1,6 +1,6 @@
 Class {
 	#name : #TestableCoffeeCup,
-	#superclass : #CoffeeCup,
+	#superclass : #CoffeeCupApi,
 	#category : #'CoffeeCup-Tests'
 }
 

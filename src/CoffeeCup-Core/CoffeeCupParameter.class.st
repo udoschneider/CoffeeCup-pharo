@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'key',
 		'name',
-		'default'
+		'default',
+		'description'
 	],
 	#category : #'CoffeeCup-Core'
 }
@@ -31,6 +32,18 @@ CoffeeCupParameter >> default [
 { #category : #accessing }
 CoffeeCupParameter >> default: aString [ 
 	default := aString
+]
+
+{ #category : #accessing }
+CoffeeCupParameter >> description: aString [
+
+	description := aString
+]
+
+{ #category : #configuration }
+CoffeeCupParameter >> do: aBlockOrNil [
+
+	aBlockOrNil ifNotNil: [ :block | block value: self ]
 ]
 
 { #category : #comparing }
@@ -94,10 +107,4 @@ CoffeeCupParameter >> setKey: aSymbol name: aString [
 	key := aSymbol.
 	name := aString.
 	
-]
-
-{ #category : #configuration }
-CoffeeCupParameter >> with: aBlockOrNil [
-
-	aBlockOrNil ifNotNil: [ :block | block value: self ]
 ]
