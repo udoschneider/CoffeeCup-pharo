@@ -15,5 +15,5 @@ BaselineOfCoffeeCup >> baseline: spec [
 			with: [ spec requires: #( #'CofeeCup-Core' ) ];
 			group: 'default' with: #( core tests );
 			group: 'core' with: #( #'CofeeCup-Core' );
-			group: 'tests' with: #( #'CofeeCup-tests' ) ]
+			group: 'tests' with: #( #'CofeeCup-Tests' ) ]
 ]
