@@ -9,11 +9,11 @@ BaselineOfCoffeeCup >> baseline: spec [
 
 	<baseline>
 	spec for: #common do: [ 
-		spec package: #'CofeeCup-Core'.
+		spec package: #'CoffeeCup-Core'.
 		spec
-			package: #'CoffeCup-Tests'
-			with: [ spec requires: #( #'CofeeCup-Core' ) ];
+			package: #'CoffeeCup-Tests'
+			with: [ spec requires: #( #'CoffeeCup-Core' ) ];
 			group: 'default' with: #( core tests );
-			group: 'core' with: #( #'CofeeCup-Core' );
-			group: 'tests' with: #( #'CofeeCup-Tests' ) ]
+			group: 'core' with: #( #'CoffeeCup-Core' );
+			group: 'tests' with: #( #'CoffeeCup-Tests' ) ]
 ]
