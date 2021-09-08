@@ -3,7 +3,6 @@ Class {
 	#superclass : #CoffeeCupSpec,
 	#instVars : [
 		'namespace',
-		'name',
 		'children'
 	],
 	#category : #'CoffeeCup-Core'
@@ -44,6 +43,12 @@ CoffeeCupNamespace >> endpoint: aSymbolOrString do: aBlock [
 	^ (self endpoint: aSymbolOrString) do: aBlock
 ]
 
+{ #category : #accessing }
+CoffeeCupNamespace >> endpointAt: key [
+
+	^ children at: key
+]
+
 { #category : #initialization }
 CoffeeCupNamespace >> initialize [
 
@@ -67,12 +72,6 @@ CoffeeCupNamespace >> namespace: aSymbolOrString [
 CoffeeCupNamespace >> namespace: aSymbolOrString do: aBlock [
 
 	^ (self namespace: aSymbolOrString) do: aBlock
-]
-
-{ #category : #accessing }
-CoffeeCupNamespace >> path [
-
-	^ path ifNil: [ name asString ]
 ]
 
 { #category : #printing }

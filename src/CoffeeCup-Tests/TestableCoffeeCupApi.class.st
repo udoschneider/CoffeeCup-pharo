@@ -5,7 +5,8 @@ Class {
 }
 
 { #category : #accessing }
-TestableCoffeeCupApi >> request: aRequest [
+TestableCoffeeCupApi >> request: arg1 [
 
-	^aRequest
+	| tmp1 |
+	^ arg1
 ]

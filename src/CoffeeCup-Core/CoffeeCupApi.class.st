@@ -114,6 +114,12 @@ CoffeeCupApi >> endpoint: aSymbolOrString do: aBlock [
 	^ (self endpoint: aSymbolOrString) do: aBlock
 ]
 
+{ #category : #accessing }
+CoffeeCupApi >> endpointAt: key [
+
+	^ children at: key
+]
+
 { #category : #private }
 CoffeeCupApi >> handler [
 
@@ -126,6 +132,11 @@ CoffeeCupApi >> initialize [
 	super initialize.
 	children := Dictionary new.
 
+]
+
+{ #category : #accessing }
+CoffeeCupApi >> name: aString [
+name := aString
 ]
 
 { #category : #configuration }
@@ -143,19 +154,6 @@ CoffeeCupApi >> namespace: aSymbolOrString [
 CoffeeCupApi >> namespace: aSymbolOrString do: aBlock [
 
 	^ (self namespace: aSymbolOrString) do: aBlock
-]
-
-{ #category : #configuration }
-CoffeeCupApi >> parameter: aSymbolOrString [
-
-	^queryParameters add:
-		(CoffeeCupQueryParameter key: aSymbolOrString asCoffeeCupSelector name: aSymbolOrString)
-]
-
-{ #category : #configuration }
-CoffeeCupApi >> parameter: aSymbolOrString do: aBlock [
-
-	^ (self parameter: aSymbolOrString) do: aBlock
 ]
 
 { #category : #accessing }
@@ -176,11 +174,10 @@ CoffeeCupApi >> printOn: aStream [
 
 { #category : #private }
 CoffeeCupApi >> request: aRequest [
-^ self client
-		  request: aRequest;
-		  execute;
-		  contents
 
+	^ self client
+		  request: aRequest;
+		  execute;response
 ]
 
 { #category : #initialization }

@@ -92,15 +92,15 @@ CoffeeCupTest >> testDocumentation [
 
 	self shouldnt: [ 
 		api
-			documentation: 'Api Doc';
+			description: 'Api Doc';
 			namespace: #foo do: [ :ns | 
 				ns
-					documentation: 'Namespace Doc';
+					description: 'Namespace Doc';
 					endpoint: #bar do: [ :ep | 
 						ep
-							documentation: 'Endpoint Doc';
+							description: 'Endpoint Doc';
 							parameter: #baz
-							do: [ :param | param documentation: 'Parameter Doc' ] ] ] ] raise: Error
+							do: [ :param | param description: 'Parameter Doc' ] ] ] ] raise: Error
 ]
 
 { #category : #tests }
@@ -111,11 +111,11 @@ CoffeeCupTest >> testDocumentationForPathParameters [
 		endpoint := ep path: '/users/{id}'.
 		parameter := ep
 			             parameter: #id
-			             do: [ :id | id documentation: 'Document me!' ] ].
+			             do: [ :id | id description: 'Document me!' ] ].
 	self assert: endpoint queryParameters size equals: 0;
 	assert: endpoint pathParameters size equals: 1;
 	assert: (parameter isKindOf: CoffeeCupParameter );
-	assert: parameter documentation equals: 'Document me!' 
+	assert: parameter description equals: 'Document me!' 
 ]
 
 { #category : #tests }
@@ -245,6 +245,16 @@ CoffeeCupTest >> testPathParameter [
 ]
 
 { #category : #tests }
+CoffeeCupTest >> testPathParameterReplacement [
+
+	(api endpoint: #foobar) path: '/users/{id}';
+	parameter: #id do: [ :parameter | parameter default: #bar ].
+	self
+		assert: ((api endpointAt: #foobar) pathParameterAt: #id) default
+		equals: #bar
+]
+
+{ #category : #tests }
 CoffeeCupTest >> testQueryParameter [
 
 	api endpoint: #users do: [ :endpoint | 
@@ -252,6 +262,20 @@ CoffeeCupTest >> testQueryParameter [
 	self
 		assertRequest: (api usersPage: 2)
 		equalsUrl: 'https://ydlmz.mocklab.io/users?page=2'
+]
+
+{ #category : #tests }
+CoffeeCupTest >> testQueryParameterReplacement [
+
+	api endpoint: #foobar do: [ :endpoint | 
+		(endpoint parameter: #foo) description: 'Desc';default: #bar.
+		(endpoint parameter: #foo) default: #baz ].
+
+	self
+	assert: ((api endpointAt: #foobar) queryParameterAt: #foo) description
+		equals: 'Desc';
+		assert: ((api endpointAt: #foobar) queryParameterAt: #foo) default
+		equals: #baz
 ]
 
 { #category : #tests }

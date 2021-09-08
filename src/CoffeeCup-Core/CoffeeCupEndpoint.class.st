@@ -2,8 +2,7 @@ Class {
 	#name : #CoffeeCupEndpoint,
 	#superclass : #CoffeeCupSpec,
 	#instVars : [
-		'namespace',
-		'name'
+		'namespace'
 	],
 	#category : #'CoffeeCup-Core'
 }
@@ -22,32 +21,14 @@ CoffeeCupEndpoint >> appendTo: aRequest with: arguments [
 ]
 
 { #category : #accessing }
-CoffeeCupEndpoint >> method [
-
-^#get
-]
-
-{ #category : #configuration }
-CoffeeCupEndpoint >> parameter: aSymbolOrString [
-
-	^ pathParameters
-		  detect: [ :each | each name = aSymbolOrString ]
-		  ifFound: [ :parameter | parameter ]
-		  ifNone: [ 
-			  queryParameters add: (CoffeeCupQueryParameter
-					   key: aSymbolOrString asCoffeeCupSelector
-					   name: aSymbolOrString) ]
-]
-
-{ #category : #configuration }
-CoffeeCupEndpoint >> parameter: aSymbolOrString do: aBlock [
-^(self parameter: aSymbolOrString ) do: aBlock
+CoffeeCupEndpoint >> children [
+^#()
 ]
 
 { #category : #accessing }
-CoffeeCupEndpoint >> path [
+CoffeeCupEndpoint >> method [
 
-	^ path ifNil: [ name asString ]
+^#get
 ]
 
 { #category : #printing }

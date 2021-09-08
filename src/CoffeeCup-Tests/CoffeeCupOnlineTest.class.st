@@ -27,7 +27,9 @@ CoffeeCupOnlineTest class >> resources [
 ]
 
 { #category : #asserting }
-CoffeeCupOnlineTest >> assertRequest: aString equalsUrl: aUrl [
+CoffeeCupOnlineTest >> assertRequest: aResponse equalsUrl: aUrl [
 
-	self assert: aString equals: (CoffeeCupTestResources current request: aUrl)
+	self
+		assert: aResponse contents
+		equals: (CoffeeCupTestResources current request: aUrl)
 ]
