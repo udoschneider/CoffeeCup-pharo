@@ -26,6 +26,14 @@ CoffeeCupEndpoint >> children [
 ]
 
 { #category : #accessing }
+CoffeeCupEndpoint >> fullPath [
+
+	^ path
+		  ifNil: [ namespace fullPath ]
+		  ifNotNil: [ namespace fullPath , '/' , path ]
+]
+
+{ #category : #accessing }
 CoffeeCupEndpoint >> method [
 
 ^#get

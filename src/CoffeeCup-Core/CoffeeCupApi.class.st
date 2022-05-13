@@ -21,50 +21,10 @@ CoffeeCupApi class >> baseUrl: aStringOrUrl do: aBlock [
  ^(self baseUrl: aStringOrUrl ) do: aBlock
 ]
 
-{ #category : #'as yet unclassified' }
-CoffeeCupApi class >> librariesIo: apiKey [
+{ #category : #visiting }
+CoffeeCupApi >> acceptVisitor: aVisitor [
 
-	^ self baseUrl: 'https://libraries.io/api' do: [ :api | 
-		  api
-			  description: 'API for [Libraries.io](https://libraries.io/)';
-			  documentation: 'https://libraries.io/api';
-			  parameter: #api_key do: [ :param | 
-				  param
-					  description:
-						  'get your api key from your account page: https://libraries.io/account';
-					  required: true;
-					  default: apiKey ];
-			  parameter: #page
-			  do: [ :param | param description: 'page (default 1)' ];
-			  parameter: #per_page do: [ :param | 
-			  param description:
-				  'results per page (default is `30`, max is `100`)' ];
-			  endpoint: #platforms do: [ :ep | 
-			  ep
-				  description: 'Get a list of supported package managers';
-				  documentation: 'https://libraries.io/api#platforms' ];
-			  namespace: #platform do: [ :platform | 
-			  platform
-				  path: '{id}';
-				  namespace: #project do: [ :project | 
-					  project
-						  path: '{id}';
-						  endpoint: #info do: [ :info | 
-							  info
-								  documentation:
-									  'Get information about a package and it''s versions"';
-								  path: '' ];
-						  endpoint: #dependencies do: [ :dependencies | 
-						  dependencies
-							  description:
-								  'Get a list of dependencies for a version of a project';
-							  path: '/{version}/dependencies';
-							  parameter: #version do: [ :version | version description: 'Project version' ] ];
-						  endpoint: #dependents;
-						  endpoint: #dependentRepositories;
-						  endpoint: #contributors;
-						  endpoint: #sourceRank;
-						  endpoint: #usage ] ] ]
+	^ aVisitor visitApi: self
 ]
 
 { #category : #'double dispatch' }
@@ -118,6 +78,12 @@ CoffeeCupApi >> endpoint: aSymbolOrString do: aBlock [
 CoffeeCupApi >> endpointAt: key [
 
 	^ children at: key
+]
+
+{ #category : #accessing }
+CoffeeCupApi >> fullPath [
+
+	^ baseUrl asString
 ]
 
 { #category : #private }

@@ -23,6 +23,12 @@ CoffeeCupParameter >> = anObject [
 		  ifTrue: [ anObject key = self key ]
 ]
 
+{ #category : #visiting }
+CoffeeCupParameter >> acceptVisitor: aVisitor [
+
+	self subclassResponsibility
+]
+
 { #category : #accessing }
 CoffeeCupParameter >> default [
 
@@ -56,24 +62,7 @@ CoffeeCupParameter >> do: aBlockOrNil [
 { #category : #'as yet unclassified' }
 CoffeeCupParameter >> documentationOn: stream [
 
-	self url
-		ifNotNil: [ 
-			stream
-				nextPut: $[;
-				nextPutAll: '`';
-				nextPutAll: self name;
-				nextPutAll: '`: ';
-				nextPutAll: '](';
-				nextPutAll: self url;
-				nextPut: $)
-			 ]
-		ifNil: [ 
-			stream
-				nextPutAll: '`';
-				nextPutAll: self name;
-				nextPutAll: '`: '
-			 ].
-	self description ifNotNil: [ :value | stream nextPutAll: value ]
+	(CoffeeCupDocumentationBuilder on: stream) visit: self
 ]
 
 { #category : #'as yet unclassified' }
@@ -145,34 +134,16 @@ CoffeeCupParameter >> propertyAt: aKey put: aValue [
 	^ properties at: aKey put: aValue
 ]
 
+{ #category : #'instance creation' }
+CoffeeCupParameter >> reference: aString [
+
+	^ self propertyAt: #reference put: aString
+]
+
 { #category : #initialization }
 CoffeeCupParameter >> setKey: aSymbol name: aString [ 
 
 	key := aSymbol.
 	name := aString.
 	
-]
-
-{ #category : #accessing }
-CoffeeCupParameter >> title [
-
-	^ self propertyAt: #title default: nil
-]
-
-{ #category : #accessing }
-CoffeeCupParameter >> title: aString [
-
-	^ self propertyAt: #title put: aString
-]
-
-{ #category : #accessing }
-CoffeeCupParameter >> url [
-
-	^ self propertyAt: #url default: nil
-]
-
-{ #category : #accessing }
-CoffeeCupParameter >> url: aString [
-
-	^ self propertyAt: #url put: aString
 ]

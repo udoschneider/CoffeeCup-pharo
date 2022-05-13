@@ -7,6 +7,12 @@ Class {
 	#category : #'CoffeeCup-Core'
 }
 
+{ #category : #visiting }
+CoffeeCupQueryParameter >> acceptVisitor: aVisitor [
+
+	^ aVisitor visitQueryParameter: self
+]
+
 { #category : #initialization }
 CoffeeCupQueryParameter >> initialize [
 

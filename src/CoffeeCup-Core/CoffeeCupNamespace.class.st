@@ -16,6 +16,12 @@ CoffeeCupNamespace class >> namespace: aNamespace name: aSymbol [
 		  yourself
 ]
 
+{ #category : #visiting }
+CoffeeCupNamespace >> acceptVisitor: aVisitor [
+
+	^ aVisitor visitNamespace: self
+]
+
 { #category : #'double dispatech' }
 CoffeeCupNamespace >> appendTo: aRequest with: arguments [
 
@@ -47,6 +53,14 @@ CoffeeCupNamespace >> endpoint: aSymbolOrString do: aBlock [
 CoffeeCupNamespace >> endpointAt: key [
 
 	^ children at: key
+]
+
+{ #category : #accessing }
+CoffeeCupNamespace >> fullPath [
+
+	^ path
+		  ifNil: [ namespace fullPath ]
+		  ifNotNil: [ namespace fullPath , '/' , path ]
 ]
 
 { #category : #initialization }

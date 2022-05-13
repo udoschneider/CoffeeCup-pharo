@@ -11,6 +11,12 @@ Class {
 	#category : #'CoffeeCup-Core'
 }
 
+{ #category : #visiting }
+CoffeeCupSpec >> acceptVisitor: aVisitor [
+
+	^ aVisitor visitEndpoint: self
+]
+
 { #category : #'double dispatch' }
 CoffeeCupSpec >> appendTo: aRequest with: arguments [
 
@@ -38,55 +44,19 @@ CoffeeCupSpec >> do: aBlockOrNil [
 { #category : #'as yet unclassified' }
 CoffeeCupSpec >> documentationOn: stream [
 
-	stream nextPutAll: '# '.
-	self url
-		ifNotNil: [ 
-			stream
-				nextPut: $[;
-				nextPutAll: self title;
-				nextPutAll: '](';
-				nextPutAll: self url;
-				nextPut: $);
-				cr;
-				cr ]
-		ifNil: [ 
-			stream
-				nextPutAll: self title;
-				cr;
-				cr ].
-	self description ifNotNil: [ :value | 
-		stream
-			nextPutAll: value;
-			cr;
-			cr ].
-		stream nextPutAll: 'Path: `'; nextPutAll: path;nextPutAll: '`';cr;cr.
-	queryParameters notEmpty ifTrue: [ 
-		stream
-			nextPutAll: 'Query Parameters';
-			cr.
-		queryParameters do: [ :each | 
-			stream nextPutAll: '* '.
-			each documentationOn: stream.
-			stream cr ].
-		stream cr ].
-	pathParameters notEmpty ifTrue: [ 
-		stream
-			nextPutAll: 'Path Parameters';
-			cr.
-		pathParameters do: [ :each | 
-			stream nextPutAll: '* '.
-			each documentationOn: stream.
-			stream cr ].
-		stream cr ].
-
-	(self children sorted: [ :x :y | x name < y name ]) do: [ :each | 
-		each documentationOn: stream ]
+	(CoffeeCupDocumentationBuilder on: stream) visit: self
 ]
 
 { #category : #'as yet unclassified' }
 CoffeeCupSpec >> documentationString [
 
 	^ String streamContents: [ :stream | self documentationOn: stream ]
+]
+
+{ #category : #accessing }
+CoffeeCupSpec >> fullPath [
+
+	self subclassResponsibility
 ]
 
 { #category : #documentation }
@@ -194,6 +164,12 @@ CoffeeCupSpec >> queryParameters [
 	^ queryParameters
 ]
 
+{ #category : #'instance creation' }
+CoffeeCupSpec >> reference: aString [
+
+	^ self propertyAt: #reference put: aString
+]
+
 { #category : #accessing }
 CoffeeCupSpec >> request: request [
 
@@ -210,16 +186,4 @@ CoffeeCupSpec >> title [
 CoffeeCupSpec >> title: aString [
 
 	^ self propertyAt: #title put: aString
-]
-
-{ #category : #accessing }
-CoffeeCupSpec >> url [
-
-	^ self propertyAt: #url default: nil
-]
-
-{ #category : #accessing }
-CoffeeCupSpec >> url: aString [
-
-	^ self propertyAt: #url put: aString
 ]
